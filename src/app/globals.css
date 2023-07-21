@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#__next {
+  flex: 1;
+}
+
+/* Updated color classes with blues */
+.bg-blue-100 {
+  background-color: #eaf2f8;
+}
+
+.bg-blue-200 {
+  background-color: #c3d7e3;
+}
+
+.bg-blue-300 {
+  background-color: #6a9fbf;
+}
+
+.text-blue-800 {
+  color: #27496d;
+}
+
+.bg-blue-500 {
+  background-color: #0072b1;
+}
+
+.bg-blue-600 {
+  background-color: #005c8c;
+}
+
+.bg-blue-600:hover {
+  background-color: #004c6c;
+}
