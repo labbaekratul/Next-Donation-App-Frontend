@@ -90,7 +90,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-blue-600 text-white py-4 px-8 text-center">
         <p>
-          © {new Date().getFullYear()} Sunnah Foundation. All rights reserved.
+          © {new Date().getFullYear()} For Testing purpose. All rights reserved.
         </p>
       </footer>
     </div>

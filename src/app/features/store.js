@@ -6,6 +6,8 @@ import updateDonationReducer from "../features/donation/updateDonation";
 import cancelRemoveDonationReducer from "../features/donation/cancelRemoveDonationSlice";
 import userlistReducer from "../features/users/userlistSlice";
 import deleteDonationReducer from "../features/donation/deleteDonation";
+import updateUserSliceByAdminReducer from "../features/users/updateUserSlice";
+import deleteUserReducer from "../features/users/deleteUserSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     cancelRemoveDonation: cancelRemoveDonationReducer,
     userlist: userlistReducer,
     deleteDonation: deleteDonationReducer,
+    updateUserByAdmin: updateUserSliceByAdminReducer,
+    deleteUser: deleteUserReducer,
   },
 });
 

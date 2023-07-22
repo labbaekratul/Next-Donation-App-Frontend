@@ -4,37 +4,32 @@ import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllDonations } from "@/app/features/donation/donationSlice";
 import { useForm } from "react-hook-form";
-import { createNewDonation } from "@/app/features/donation/createDonationSlice";
-import { Button } from "@mui/material";
-import { cancelRemoveDonationByUser } from "@/app/features/donation/cancelRemoveDonationSlice";
 import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 import SpniningBtn from "../../../../../components/SpniningBtn";
 import { UsersList } from "@/app/features/users/userlistSlice";
+import { updateUserByAdmin } from "@/app/features/users/updateUserSlice";
+import { deleteUser } from "@/app/features/users/deleteUserSlice";
 
 export default function Page() {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
   const [updateDonation, setUpdateDonation] = useState(false);
-  const [donationData, setDonationData] = useState({});
+  const [userData, setUserData] = useState({});
   const [saving, setSaving] = useState(false);
 
   const localStore = getTokenFromLocalStorage("userInfo");
   const isAdmin = localStore?.role;
 
-  const donations = useSelector((state) => state.donation.donations);
   const { users } = useSelector((state) => state.userlist);
-  const state = useSelector((state) => state.createDonation);
+  const state = useSelector((state) => state.updateUserByAdmin);
   const removeCancelDonation = useSelector(
     (state) => state.cancelRemoveDonation
   );
-  const { updatedDonationByUser } = useSelector(
-    (state) => state.updateDonation
-  );
+
   const loadingRowsCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  const totaleDonation = () => {};
+  // const totaleDonation = () => {};
 
   const {
     register,
@@ -48,50 +43,28 @@ export default function Page() {
   }, [dispatch]);
 
   const onSubmit = (data) => {
-    if (!donationData.id) {
-      dispatch(createNewDonation(data));
-    } else {
-      dispatch(
-        updateDonationByUser({
-          donationId: donationData.id,
-          updatedData: data,
-        })
-      );
-      setDonationData(false);
-      reset();
-    }
-  };
-
-  const cancleDonationHandler = () => {
     dispatch(
-      cancelRemoveDonationByUser({
-        donationId: donationData.id,
-        updatedData: { status: "CANCELED" },
+      updateUserByAdmin({
+        userId: userData.id,
+        userData: data,
       })
     );
-    saveItemHandler();
+    setUserData(false);
+    reset();
   };
 
   useEffect(() => {
-    if (state?.donation.id || updatedDonationByUser?.id) {
+    if (state?.updatedData?.id) {
       saveItemHandler();
+      dispatch(UsersList());
       reset();
     }
-  }, [dispatch, reset, state?.donation, updatedDonationByUser]);
+  }, [dispatch, reset, state]);
 
-  useEffect(() => {
-    dispatch(fetchAllDonations());
-  }, [dispatch]);
-
-  const deleteItemHandler = (data) => {
-    dispatch(
-      cancelRemoveDonationByUser({
-        donationId: data.id,
-        updatedData: { status: "REMOVED" },
-      })
-    );
-
+  const deleteUserHandler = (id) => {
+    dispatch(deleteUser(id));
     saveItemHandler();
+    dispatch(UsersList());
   };
   const saveItemHandler = () => {
     setSaving(true);
@@ -99,17 +72,17 @@ export default function Page() {
       setSaving(false);
       setShowModal(false);
       setUpdateDonation(false);
-      dispatch(fetchAllDonations());
+      dispatch(UsersList());
     }, 2000);
   };
 
-  const donationEditHandler = (data) => {
-    setDonationData(data);
+  const userEditHandler = (data) => {
+    setUserData(data);
     setShowModal(true);
   };
 
   const showModalHandler = () => {
-    setDonationData(false);
+    setUserData(false);
     setShowModal(false);
     setUpdateDonation(false);
     reset();
@@ -223,7 +196,7 @@ export default function Page() {
                 <button
                   type="button"
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  onClick={() => donationEditHandler(user)}>
+                  onClick={() => userEditHandler(user)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -240,7 +213,7 @@ export default function Page() {
                 </button>
                 <button
                   className="font-medium text-red-600 dark:text-red-500 hover:underline ml-4"
-                  onClick={() => deleteItemHandler(item)}>
+                  onClick={() => deleteUserHandler(user.id)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -303,51 +276,108 @@ export default function Page() {
                     <label
                       htmlFor="first-name"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Donation Title
+                      User name
                     </label>
                     <input
                       className={`shadow-sm bg-gray-50 border rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
-                        errors.title ? "border-red-500" : "border-gray-300"
+                        errors.name ? "border-red-500" : "border-gray-300"
                       }`}
                       id="title"
-                      {...register("title", {
-                        required: "Donation title is required",
+                      {...register("name", {
+                        required: "User name is required",
                         maxLength: {
-                          value: 100,
-                          message:
-                            "The donation title should have at most 100 characters",
+                          value: 50,
+                          message: "Name should have at most 50 characters",
                         },
                       })}
                       type="text"
-                      placeholder="Donation for mosque"
-                      defaultValue={donationData?.title}
+                      placeholder="user name"
+                      defaultValue={userData?.name}
                     />
-                    {errors.title && (
+                    {errors.name && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.title.message}
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      htmlFor="first-name"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Email
+                    </label>
+                    <input
+                      className={`shadow-sm bg-gray-50 border rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                        errors.email ? "border-red-500" : "border-gray-300"
+                      }`}
+                      id="title"
+                      {...register("email", {
+                        required: "Email is required",
+                        maxLength: {
+                          value: 70,
+                          message: "Email should have at most 70 characters",
+                        },
+                      })}
+                      type="email"
+                      placeholder="email"
+                      defaultValue={userData?.email}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      htmlFor="first-name"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Phone
+                    </label>
+                    <input
+                      className={`shadow-sm bg-gray-50 border rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      }`}
+                      id="title"
+                      {...register("phone", {
+                        required: "Phone number is required",
+                        maxLength: {
+                          value: 14,
+                          message:
+                            "phone number should have at most 14 characters",
+                        },
+                      })}
+                      type="phone"
+                      placeholder="017********"
+                      defaultValue={userData?.phone}
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.name.message}
                       </p>
                     )}
                   </div>
 
                   <div className="col-span-6 sm:col-span-3">
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Donation Type
+                      Role
                     </label>
                     <select
-                      defaultValue={donationData?.donatedTo}
+                      defaultValue={userData?.role}
                       className={`shadow-sm bg-gray-50 border rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
-                        errors.donatedTo ? "border-red-500" : "border-gray-300"
+                        errors.role ? "border-red-500" : "border-gray-300"
                       }`}
                       id="donatedTo"
-                      {...register("donatedTo", {
+                      {...register("role", {
                         required: "Please select a donation place",
                       })}>
                       <option value="" disabled>
-                        Select donation place
+                        Change role*
                       </option>
-                      <option value="MADRASA">MADRASA</option>
-                      <option value="MOSQUE">MOSQUE</option>
-                      <option value="ORPHANAGE">ORPHANAGE</option>
+                      <option value="USER">USER</option>
+                      <option value="ADMIN">ADMIN</option>
                       {/* Add more options as needed */}
                     </select>
                     {errors.donatedTo && (
@@ -356,57 +386,13 @@ export default function Page() {
                       </p>
                     )}
                   </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="phone-number"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Donation Amount
-                    </label>
-                    <input
-                      className={`shadow-sm bg-gray-50 border rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
-                        errors.donationAmount
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                      type="number"
-                      id="donationAmount"
-                      {...register("donationAmount", {
-                        required: "Donation amount is required",
-                        min: {
-                          value: 50,
-                          message: "The minimum donation amount is 50 taka",
-                        },
-                        max: {
-                          value: 10000,
-                          message: "The maximum donation amount is 10000 taka",
-                        },
-                      })}
-                      defaultValue={Number(donationData?.donationAmount)}
-                      placeholder="100 taka"
-                    />
-                    {errors.donationAmount && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.donationAmount.message}
-                      </p>
-                    )}
-                  </div>
-                  {updateDonation && (
-                    <div className="col-span-6 sm:col-span-3 flex justify-center items-center flex-col">
-                      <label
-                        htmlFor="phone-number"
-                        className="block mb-2 text-sm text-center font-medium text-gray-900 dark:text-white">
-                        Refund <small>**note: only if status is pending</small>
-                      </label>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={cancleDonationHandler}>
-                        Cancel donation
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
+              <p className="text-sm text-red-600 text-center pb-3">
+                {Array.isArray(state.error)
+                  ? state.error.map((err) => <b key={err}>{err}</b>)
+                  : state?.error}
+              </p>
               <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                 {!saving ? (
                   <button
@@ -603,7 +589,7 @@ export default function Page() {
     let pageSize = 10;
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const totalPages = donations?.totalPages;
+    const totalPages = users?.totalPages;
 
     //search filter
     const handleSearch = (event) => {
@@ -611,7 +597,7 @@ export default function Page() {
       setCurrentPage(1);
     };
 
-    const filteredData = donations?.data?.filter((item) =>
+    const filteredData = users?.data?.filter((item) =>
       item?.title?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const currentData = filteredData.slice(startIndex, endIndex);
@@ -732,7 +718,7 @@ export default function Page() {
         className={`mx-auto max-w-screen-xl px-2 lg:px-12 ${
           showModal ? "blur-lg" : ""
         }`}>
-        {donations?.data ? <ItemsTableContainer /> : <LoadingTable />}
+        {users?.data ? <ItemsTableContainer /> : <LoadingTable />}
       </div>
       <ItemsModal />
     </section>
