@@ -1,30 +1,30 @@
-import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
+// deleteDonationSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API } from "../auth/authSlice";
+import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 
 const initialState = {
   loading: false,
+  success: false,
   error: null,
-  donation: {},
 };
 
-// Create an async thunk action to create a new donation
-export const createNewDonation = createAsyncThunk(
-  "donations/create",
-  async (donationData, { rejectWithValue }) => {
+// Create an async thunk action to delete a donation
+export const deleteDonation = createAsyncThunk(
+  "donations/delete",
+  async (donationId, { rejectWithValue }) => {
     try {
       const { token } = getTokenFromLocalStorage("userInfo");
       if (!token) {
         throw new Error("Token not found");
       }
-
-      const response = await axios.post(`${API}/donation`, donationData, {
+      const response = await axios.delete(`${API}/donation/${donationId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -32,24 +32,27 @@ export const createNewDonation = createAsyncThunk(
   }
 );
 
-const createDonationSlice = createSlice({
-  name: "createDonation",
+const deleteDonationSlice = createSlice({
+  name: "deleteDonation",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(createNewDonation.pending, (state) => {
+    builder.addCase(deleteDonation.pending, (state) => {
       state.loading = true;
+      state.success = false;
       state.error = null;
     });
-    builder.addCase(createNewDonation.fulfilled, (state, { payload }) => {
+    builder.addCase(deleteDonation.fulfilled, (state) => {
       state.loading = false;
-      state.donation = payload;
+      state.success = true;
+      state.error = null;
     });
-    builder.addCase(createNewDonation.rejected, (state, { payload }) => {
+    builder.addCase(deleteDonation.rejected, (state, { payload }) => {
       state.loading = false;
+      state.success = false;
       state.error = payload;
     });
   },
 });
 
-export default createDonationSlice.reducer;
+export default deleteDonationSlice.reducer;

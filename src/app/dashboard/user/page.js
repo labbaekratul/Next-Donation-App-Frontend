@@ -9,24 +9,24 @@ import { useForm } from "react-hook-form";
 import { createNewDonation } from "@/app/features/donation/createDonationSlice";
 import SpniningBtn from "../../../../components/SpniningBtn";
 import { Button } from "@mui/material";
-import { updateDonationByUser } from "@/app/features/donation/updateDonation";
+import { updateDonationDataByUser } from "@/app/features/donation/updateDonation";
 import { cancelRemoveDonationByUser } from "@/app/features/donation/cancelRemoveDonationSlice";
 
 export default function Page() {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
+  const [updateError, setUpdateError] = useState("");
   const [updateDonation, setUpdateDonation] = useState(false);
   const [donationData, setDonationData] = useState({});
   const [saving, setSaving] = useState(false);
 
   const donations = useSelector((state) => state.donation.donations);
   const state = useSelector((state) => state.createDonation);
+  const updateDonationByUser = useSelector((state) => state.updateDonation);
   const removeCancelDonation = useSelector(
     (state) => state.cancelRemoveDonation
   );
-  const { updatedDonationByUser } = useSelector(
-    (state) => state.updateDonation
-  );
+  const donation = useSelector((state) => state.updateDonation);
   const loadingRowsCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const {
@@ -41,7 +41,7 @@ export default function Page() {
       dispatch(createNewDonation(data));
     } else {
       dispatch(
-        updateDonationByUser({
+        updateDonationDataByUser({
           donationId: donationData.id,
           updatedData: data,
         })
@@ -62,11 +62,11 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if (state?.donation.id || updatedDonationByUser?.id) {
+    if (state?.donation.id || donation.updatedDonationByUser?.id) {
       saveItemHandler();
       reset();
     }
-  }, [dispatch, reset, state?.donation, updatedDonationByUser]);
+  }, [dispatch, reset, state?.donation, donation]);
 
   useEffect(() => {
     dispatch(fetchAllDonations());
@@ -88,6 +88,7 @@ export default function Page() {
       setSaving(false);
       setShowModal(false);
       setUpdateDonation(false);
+      setUpdateError(false);
       dispatch(fetchAllDonations());
     }, 2000);
   };
@@ -135,6 +136,12 @@ export default function Page() {
     removeCancelDonation?.cancelOrReoveDonation?.id,
     removeCancelDonation.error,
   ]);
+
+  useEffect(() => {
+    if (updateDonationByUser?.error === "Request failed with status code 406") {
+      setUpdateError("RECIVED status donation cant not be updated");
+    }
+  }, [updateDonationByUser]);
 
   const ItemsTable = ({ items }) => {
     return (
@@ -393,6 +400,9 @@ export default function Page() {
                   )}
                 </div>
               </div>
+              <p className="text-sm text-red-600 text-center pb-3">
+                {updateDonationByUser.error && updateError}
+              </p>
               <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                 {!saving ? (
                   <button

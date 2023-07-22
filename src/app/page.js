@@ -4,6 +4,9 @@ import React from "react";
 import { motion, useTransform, useViewportScroll } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getTokenFromLocalStorage } from "./helpers/mixin";
+import img1 from "../../public/images/img1.jpg";
+import img2 from "../../public/images/img2.jpg";
+import img3 from "../../public/images/img3.jpg";
 
 const Home = () => {
   const { push } = useRouter();
@@ -49,17 +52,17 @@ const Home = () => {
         </motion.p>
         <div className="flex justify-center mt-8">
           <img
-            src="https://via.placeholder.com/150"
+            src={img1.src}
             alt="Donation 1"
             className="w-20 h-20 rounded-full mx-2"
           />
           <img
-            src="https://via.placeholder.com/150"
+            src={img2.src}
             alt="Donation 2"
             className="w-20 h-20 rounded-full mx-2"
           />
           <img
-            src="https://via.placeholder.com/150"
+            src={img3.src}
             alt="Donation 3"
             className="w-20 h-20 rounded-full mx-2"
           />

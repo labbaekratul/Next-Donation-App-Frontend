@@ -13,7 +13,7 @@ const initialState = {
   error: null,
 };
 
-export const updateDonationByUser = createAsyncThunk(
+export const updateDonationDataByUser = createAsyncThunk(
   "donations/update",
   async ({ donationId, updatedData }, { rejectWithValue }) => {
     try {
@@ -23,7 +23,7 @@ export const updateDonationByUser = createAsyncThunk(
       }
 
       const response = await axios.patch(
-        `{${API}}/donation/user/${donationId}`,
+        `${API}/donation/user/${donationId}`,
         updatedData,
         {
           headers: {
@@ -68,15 +68,18 @@ const donationSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(updateDonationByUser.pending, (state) => {
+    builder.addCase(updateDonationDataByUser.pending, (state) => {
       state.updating = true;
       state.error = null;
     });
-    builder.addCase(updateDonationByUser.fulfilled, (state, { payload }) => {
-      state.updating = false;
-      state.updatedDonationByUser = payload;
-    });
-    builder.addCase(updateDonationByUser.rejected, (state, { payload }) => {
+    builder.addCase(
+      updateDonationDataByUser.fulfilled,
+      (state, { payload }) => {
+        state.updating = false;
+        state.updatedDonationByUser = payload;
+      }
+    );
+    builder.addCase(updateDonationDataByUser.rejected, (state, { payload }) => {
       state.updating = false;
       state.error = payload;
     });

@@ -1,6 +1,7 @@
 import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API } from "../auth/authSlice";
 
 const initialState = {
   cancelOrReove: false,
@@ -17,7 +18,7 @@ export const cancelRemoveDonationByUser = createAsyncThunk(
         throw new Error("Token not found");
       }
       const response = await axios.patch(
-        `http://localhost:5000/api/donation/soft-delete/${donationId}`,
+        `${API}/donation/soft-delete/${donationId}`,
         updatedData,
         {
           headers: {

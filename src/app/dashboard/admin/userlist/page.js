@@ -8,7 +8,6 @@ import { fetchAllDonations } from "@/app/features/donation/donationSlice";
 import { useForm } from "react-hook-form";
 import { createNewDonation } from "@/app/features/donation/createDonationSlice";
 import { Button } from "@mui/material";
-import { updateDonationByUser } from "@/app/features/donation/updateDonation";
 import { cancelRemoveDonationByUser } from "@/app/features/donation/cancelRemoveDonationSlice";
 import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 import SpniningBtn from "../../../../../components/SpniningBtn";
@@ -105,9 +104,6 @@ export default function Page() {
   };
 
   const donationEditHandler = (data) => {
-    if (data.status === "PENDING") {
-      setUpdateDonation(true);
-    }
     setDonationData(data);
     setShowModal(true);
   };
@@ -227,7 +223,7 @@ export default function Page() {
                 <button
                   type="button"
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  onClick={() => donationEditHandler(item)}>
+                  onClick={() => donationEditHandler(user)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

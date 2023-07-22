@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import SpniningBtn from "../../../../components/SpniningBtn";
 import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 import { updateDonationByAdmin } from "@/app/features/donation/updateDonation";
+import { deleteDonation } from "@/app/features/donation/deleteDonation";
 
 export default function Page() {
   const dispatch = useDispatch();
@@ -21,11 +22,7 @@ export default function Page() {
   const isAdmin = localStore?.role;
 
   const donations = useSelector((state) => state.donation.donations);
-  const state = useSelector((state) => state.createDonation);
-  const data = useSelector((state) => state.updateDonation);
   const loadingRowsCount = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-  console.log(data);
 
   const {
     register,
@@ -70,6 +67,12 @@ export default function Page() {
     setShowModal(false);
     setUpdateDonation(false);
     reset();
+  };
+
+  const deleteItemHandler = (donationId) => {
+    dispatch(deleteDonation(donationId));
+    dispatch(fetchAllDonations());
+    saveItemHandler();
   };
 
   const ItemsTable = ({ items }) => {
@@ -172,7 +175,7 @@ export default function Page() {
                 </button>
                 <button
                   className="font-medium text-red-600 dark:text-red-500 hover:underline ml-4"
-                  onClick={() => deleteItemHandler(item)}>
+                  onClick={() => deleteItemHandler(item.id)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -341,7 +344,7 @@ export default function Page() {
                       <option value="PENDING">PENDING</option>
                       <option value="RECIVED">RECIVED</option>
                       <option value="CANCELED">CANCELED</option>
-                      <option value="CANCELED">REMOVED</option>
+                      <option value="REMOVED">REMOVED</option>
                       {/* Add more options as needed */}
                     </select>
                     {errors.donatedTo && (

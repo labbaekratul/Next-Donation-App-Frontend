@@ -3,8 +3,7 @@
 import { getTokenFromLocalStorage } from "@/app/helpers/mixin";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const API = process.env.API_BASE_URL;
+import { API } from "../auth/authSlice";
 
 // Helper function to get the token from local storage
 
@@ -26,7 +25,7 @@ export const UsersList = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `http://localhost:5000/api/user?pageNumber=${pageNumber}&include=donation&includeFields=status,donationAmount`,
+        `${API}/user?pageNumber=${pageNumber}&include=donation&includeFields=status,donationAmount`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
